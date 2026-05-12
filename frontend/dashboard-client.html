@@ -84,61 +84,64 @@ if (user.role !== "client") {
       window.location.href = "login.html";
     }
 
-    async function loadClientDashboard() {
-      try {
-        const res = await fetch(`${API_URL}/jobs`, {
-          headers: {
-            "Authorization": token
-          }
-        });
+async function loadClientDashboard() {
 
-        const jobs = await res.json();
-        const container = document.getElementById("clientJobsList");
+  try {
 
-        if (!Array.isArray(jobs)) {
-          container.innerHTML = "<p>Unable to load jobs.</p>";
-          return;
-        }
+    const res = await fetch(`${API_URL}/jobs`);
 
-        const myJobs = jobs.filter(job => {
-          if (!job.client) return false;
-          if (typeof job.client === "string") return job.client === userId;
-          return job.client._id === userId;
-        });
+    const jobs = await res.json();
 
-        document.getElementById("postedJobsCount").textContent = myJobs.length;
+    console.log(jobs);
 
-        let totalApplicants = 0;
+    const container = document.getElementById("clientJobsList");
 
-        for (const job of myJobs) {
-          try {
-            const appRes = await fetch(`${API_URL}/applications/job/${job._id}`, {
-              headers: { "Authorization": token }
-            });
-            const apps = await appRes.json();
-            if (Array.isArray(apps)) totalApplicants += apps.length;
-          } catch (e) {}
-        }
-
-        document.getElementById("applicantsCount").textContent = totalApplicants;
-
-        if (myJobs.length === 0) {
-          container.innerHTML = "<p>No jobs posted yet.</p>";
-          return;
-        }
-
-        container.innerHTML = myJobs.map(job => `
-          <div class="job-item">
-            <h4>${job.title}</h4>
-            <p>${job.description}</p>
-            <button onclick="viewApplicants('${job._id}')">View Applicants</button>
-          </div>
-        `).join("");
-      } catch (error) {
-        console.error(error);
-        document.getElementById("clientJobsList").innerHTML = "<p>Server connection failed.</p>";
-      }
+    if (!Array.isArray(jobs)) {
+      container.innerHTML = "<p>Unable to load jobs.</p>";
+      return;
     }
+
+    const myJobs = jobs.filter(job => {
+
+      if (!job.client) return false;
+
+      if (typeof job.client === "object") {
+        return job.client._id === userId;
+      }
+
+      return job.client === userId;
+    });
+
+    document.getElementById("postedJobsCount").textContent =
+      myJobs.length;
+
+    if (myJobs.length === 0) {
+      container.innerHTML = "<p>No jobs posted yet.</p>";
+      return;
+    }
+
+    container.innerHTML = myJobs.map(job => `
+      <div class="job-item">
+
+        <h4>${job.title}</h4>
+
+        <p>${job.description}</p>
+
+        <button onclick="viewApplicants('${job._id}')">
+          View Applicants
+        </button>
+
+      </div>
+    `).join("");
+
+  } catch (error) {
+
+    console.error(error);
+
+    document.getElementById("clientJobsList").innerHTML =
+      "<p>Server connection failed.</p>";
+  }
+}
 
     function viewApplicants(jobId) {
       window.location.href = `applicants.html?jobId=${jobId}`;
