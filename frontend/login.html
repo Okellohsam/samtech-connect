@@ -59,6 +59,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
   localStorage.setItem("role", data.user.role);
   localStorage.setItem("username", data.user.username);
   localStorage.setItem("name", data.user.name);
+  localStorage.setItem("userId", data.user.id);
 
   if (data.user.role === "client") {
   window.location.href = "dashboard-client.html";
