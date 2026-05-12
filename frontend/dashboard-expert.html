@@ -87,44 +87,74 @@ if (role === "admin") {
       window.location.href = "login.html";
     }
 
-    async function loadExpertDashboard() {
-      try {
-        const jobsRes = await fetch(`${API_URL}/jobs`);
-        const jobs = await jobsRes.json();
+async function loadExpertDashboard() {
 
-        const jobsContainer = document.getElementById("expertJobsList");
+  try {
 
-        if (!Array.isArray(jobs)) {
-          jobsContainer.innerHTML = "<p>Unable to load jobs.</p>";
-          return;
-        }
+    const jobsRes = await fetch(`${API_URL}/jobs`);
 
-        document.getElementById("jobsCount").textContent = jobs.length;
+    const jobs = await jobsRes.json();
 
-        if (jobs.length === 0) {
-          jobsContainer.innerHTML = "<p>No jobs available at the moment.</p>";
-        } else {
-          jobsContainer.innerHTML = jobs.slice(0, 5).map(job => `
-            <div class="job-item">
-              <h4>${job.title}</h4>
-              <p>${job.description}</p>
-              <button onclick="window.location.href='marketplace.html'">View & Apply</button>
-            </div>
-          `).join("");
-        }
+    console.log(jobs);
 
-        const appsRes = await fetch(`${API_URL}/applications/my`, {
-          headers: {
-            "Authorization": token
-          }
-        });
+    const jobsContainer =
+      document.getElementById("expertJobsList");
 
-        const apps = await appsRes.json();
-        document.getElementById("applicationsCount").textContent = Array.isArray(apps) ? apps.length : 0;
-      } catch (error) {
-        document.getElementById("expertJobsList").innerHTML = "<p>Server connection failed.</p>";
-      }
+    if (!Array.isArray(jobs)) {
+
+      jobsContainer.innerHTML =
+        "<p>Unable to load jobs.</p>";
+
+      return;
     }
+
+    document.getElementById("jobsCount").textContent =
+      jobs.length;
+
+    if (jobs.length === 0) {
+
+      jobsContainer.innerHTML =
+        "<p>No jobs available at the moment.</p>";
+
+    } else {
+
+      jobsContainer.innerHTML = jobs.map(job => `
+        <div class="job-item">
+
+          <h4>${job.title}</h4>
+
+          <p>${job.description}</p>
+
+          <button onclick="window.location.href='marketplace.html'">
+            View & Apply
+          </button>
+
+        </div>
+      `).join("");
+    }
+
+    const appsRes = await fetch(
+      `${API_URL}/applications/my`,
+      {
+        headers: {
+          "Authorization": token
+        }
+      }
+    );
+
+    const apps = await appsRes.json();
+
+    document.getElementById("applicationsCount").textContent =
+      Array.isArray(apps) ? apps.length : 0;
+
+  } catch (error) {
+
+    console.error(error);
+
+    document.getElementById("expertJobsList").innerHTML =
+      "<p>Server connection failed.</p>";
+  }
+}
 
     loadExpertDashboard();
   </script>
